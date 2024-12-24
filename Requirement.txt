@@ -2,3 +2,9 @@ pandas
 numpy
 matplotlib
 openpyxl 
+matplotlib.pyplot
+sklearn
+pg8000
+sqlalchemy
+dotenv
+math
