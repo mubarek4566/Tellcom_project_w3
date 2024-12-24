@@ -4,6 +4,7 @@ import os
 from path import get_path
 from path import get_path2
 
+
 # Define data loader class
 class CSVData:
     def __init__(self, file_path):

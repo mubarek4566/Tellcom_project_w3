@@ -1,10 +1,57 @@
 import pandas as pd
+import matplotlib.pyplot as plt
+
 
 # Define data loader class
 class EDA:
     def __init__(self, file_path):
         # Initialize the Folder path of the data
         self.df = file_path
+
+    def fill_null_by_imsi_group(self: pd.DataFrame):
+        # Replace null values in 'MSISDN/Number' and 'IMEI' columns with values from the same IMSI group.
+
+        if 'IMSI' in self.df.columns:
+            print("Filling missing 'MSISDN/Number' and 'IMEI' by IMSI group...")
+            
+            # Fill missing 'MSISDN/Number' using the same IMSI group
+            self.df['MSISDN/Number'] = self.df.groupby('IMSI')['MSISDN/Number'].transform(lambda x: x.fillna(method='pad'))
+
+            # Fill missing 'IMEI' using the same IMSI group
+            self.df['IMEI'] = self.df.groupby('IMSI')['IMEI'].transform(lambda x: x.fillna(method='pad'))
+        else:
+            print("IMSI column is missing from the DataFrame, unable to fill null values.")
+        return self.df
+    
+    def distribution_of_missing_values(self, column_names):
+        """
+        Plot the distribution of missing values for the specified columns.
+        """
+        # Check for missing values in the specified columns
+        null_columns = self.file_path[column_names]
+        constant_values = (null_columns.isnull().sum())
+
+        # Calculate percentages
+        total = constant_values.sum()
+        percentages = (constant_values / total) * 100 if total > 0 else [0] * len(constant_values)
+
+        # Bar plot for constant/zero values
+        ax = constant_values.plot(kind='barh', figsize=(10, 8), color='orange')
+
+        # Add number and percentage annotations
+        for bar, percentage in zip(ax.patches, percentages):
+            width = bar.get_width()
+            y = bar.get_y() + bar.get_height() / 2
+            annotation = f'{int(width)} ({percentage:.2f}%)'
+            ax.annotate(annotation, xy=(width, y), xytext=(5, 0),
+                        textcoords="offset points", ha='left', va='center')
+
+        # Add labels and title
+        plt.title("Distribution of Missing Values Per Column")
+        plt.xlabel("Frequency")
+        plt.ylabel("Columns")
+        plt.xticks(rotation=45)
+        plt.show()
 
     def segment(self):
         # 1. Aggregate data by IMSI for total duration and data usage
@@ -42,6 +89,6 @@ class EDA:
         }).reset_index()
 
         # Display the result
-        return decile_group
+        return decile_group, aggregated_data
     
    
